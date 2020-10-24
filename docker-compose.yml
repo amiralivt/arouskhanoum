@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  arouskhanoum_pgsql:
+    image: postgres:12
+    container_name: arouskhanoum_pgsql
+    volumes:
+      - arouskhanoum_pgsql:/var/lib/postgresql/data
+    restart: always
+    env_file: .env
+    ports:
+      - "5432:5432"
+    networks:
+      - arouskhanoum_network
+
+volumes:
+  arouskhanoum_pgsql:
+    external: true
+networks:
+  arouskhanoum_network:
+    external: true
