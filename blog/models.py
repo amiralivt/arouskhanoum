@@ -5,14 +5,17 @@ from ckeditor.fields import RichTextField
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
+
 def validate_file_extension(value):
     ext = os.path.splitext(value.name)[-1].lower()
-    if not ext in ['.jpg', '.jpeg', '.png']:
-        raise  ValidationError('Unsupported file extension.')
+    if ext not in ['.jpg', '.jpeg', '.png']:
+        raise ValidationError('Unsupported file extension.')
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.FileField(upload_to='files/user_avatar/', null=False, blank=False, validators=[validate_file_extension])
+    avatar = models.FileField(upload_to='media/user_avatar/%Y/%m/', null=False, blank=False,
+                              validators=[validate_file_extension])
     description = models.CharField(max_length=512, null=False, blank=False)
 
     def __str__(self):
@@ -21,7 +24,8 @@ class UserProfile(models.Model):
 
 class Category(models.Model):
     title = models.CharField(max_length=128, null=False, blank=False)
-    cover = models.FileField(upload_to='files/category_cover/', null=True, blank=True, validators=[validate_file_extension])
+    cover = models.FileField(upload_to='media/category_cover/%Y/%m/', null=True, blank=True,
+                             validators=[validate_file_extension])
 
     def __str__(self):
         return self.title
@@ -29,12 +33,13 @@ class Category(models.Model):
 
 class Article(models.Model):
     title = models.CharField(max_length=128, null=False, blank=False)
-    cover = models.FileField(upload_to='files/article_cover/', null=False, blank=False, validators=[validate_file_extension])
+    cover = models.FileField(upload_to='article_cover/%Y/%m/', null=False, blank=False,
+                             validators=[validate_file_extension])
     content = RichTextField()
     create_date = models.DateTimeField(default=timezone.now)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    author = models.OneToOneField(UserProfile, on_delete=models.PROTECT)
-    pub_date = models.DateTimeField('date published',blank=True, null=True)
+    author = models.ForeignKey(UserProfile, on_delete=models.PROTECT)
+    pub_date = models.DateTimeField('date published', blank=True, null=True)
 
     def publish(self):
         self.pub_date = timezone.now()
